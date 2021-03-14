@@ -1,0 +1,13 @@
+demo.security.oauth2.resourceserver:
+  admin:
+    audience: https://arthur-dev.com.au/admin
+    issuer-uri: https://arthur-dev.au.auth0.com/
+    jwk-cache-ttl: 30m
+    jwk-cache-refresh: 15m
+    jwk-set-uri: https://arthur-dev.au.auth0.com/.well-known/jwks.json
+  user:
+    audience: https://arthur-dev.com.au/user
+    issuer-uri: https://arthur-dev-alt.au.auth0.com/
+    jwk-cache-ttl: 30m
+    jwk-cache-refresh: 15m
+    jwk-set-uri: https://arthur-dev-alt.au.auth0.com/.well-known/jwks.json
