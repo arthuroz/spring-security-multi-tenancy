@@ -1,14 +1,12 @@
 # Spring Security OAuth Resource server demo
 
-* Spring Security 5.2 - 5.4 released
-
 ## Features
 
-### JWK cache
+* Multi-tenancy configuration
 
-### Audience validation
+* JWK cache and lazy loading
 
-### Multi tenancy
+* Audience validation
 
 ## Reference Documentation
 
@@ -23,4 +21,5 @@ For further reference, please consider the following sections:
 * [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.4.3/reference/htmlsingle/#production-ready)
 
 ## TODO
+* Test cases
 * Kotlin version
