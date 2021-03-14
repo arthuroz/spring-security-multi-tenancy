@@ -18,7 +18,9 @@ import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.stereotype.Component;
@@ -41,6 +43,8 @@ class JwtAuthenticationManagerIssuerResolver
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(JwtAuthenticationManagerIssuerResolver.class);
+
+    public static final String NO_PREFIX_FOR_AUTHORITIES = "";
 
     private final MultipleIdps config;
     private final BearerTokenResolver resolver = new DefaultBearerTokenResolver();
@@ -101,7 +105,19 @@ class JwtAuthenticationManagerIssuerResolver
     private JwtAuthenticationProvider jwtAuthProvider(OAuth2IdpConfig config) {
         var jwtDecoder = new NimbusJwtDecoder(configureJwksCache(config));
         jwtDecoder.setJwtValidator(validators(config));
-        return new JwtAuthenticationProvider(jwtDecoder);
+        var authenticationProvider = new JwtAuthenticationProvider(jwtDecoder);
+        authenticationProvider.setJwtAuthenticationConverter(customJwtAuthenticationConverter());
+        return authenticationProvider;
+    }
+
+    private JwtAuthenticationConverter customJwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter =
+                new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix(NO_PREFIX_FOR_AUTHORITIES);
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(
+                jwtGrantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 
     @Override
