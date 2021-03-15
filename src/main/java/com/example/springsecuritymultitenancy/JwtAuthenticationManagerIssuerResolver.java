@@ -73,7 +73,7 @@ class JwtAuthenticationManagerIssuerResolver
         }
     }
 
-    private DefaultJWTProcessor configureJwksCache(OAuth2IdpConfig config) {
+    DefaultJWTProcessor configureJwksCache(OAuth2IdpConfig config) {
         try {
             var jwkSetCache =
                     new DefaultJWKSetCache(
