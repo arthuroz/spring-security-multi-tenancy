@@ -102,7 +102,7 @@ class JwtAuthenticationManagerIssuerResolver
         return validateAudienceAndIssuer;
     }
 
-    private JwtAuthenticationProvider jwtAuthProvider(OAuth2IdpConfig config) {
+    JwtAuthenticationProvider jwtAuthProvider(OAuth2IdpConfig config) {
         var jwtDecoder = new NimbusJwtDecoder(configureJwksCache(config));
         jwtDecoder.setJwtValidator(validators(config));
         var authenticationProvider = new JwtAuthenticationProvider(jwtDecoder);
