@@ -21,5 +21,4 @@ For further reference, please consider the following sections:
 * [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.4.3/reference/htmlsingle/#production-ready)
 
 ## TODO
-* Test cases
 * Kotlin version

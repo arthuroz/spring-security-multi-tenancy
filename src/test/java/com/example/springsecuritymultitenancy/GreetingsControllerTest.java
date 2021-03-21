@@ -29,20 +29,32 @@ class GreetingsControllerTest {
         }
 
         @Test
-        @WithMockUser(authorities = "read:greetings")
-        void whenHasReadScopeThenGreet() throws Exception {
+        @WithMockUser(authorities = "consumer:read:greetings")
+        void greetWhenHasConsumerReadScope() throws Exception {
+            mockMvc.perform(get("/")).andExpect(status().isOk());
+        }
+
+        @Test
+        @WithMockUser(authorities = "admin:read:greetings")
+        void greetWhenHasAdminReadScope() throws Exception {
             mockMvc.perform(get("/")).andExpect(status().isOk());
         }
 
         @Test
         @WithMockUser(authorities = "write:greetings")
-        void whenHasWriteScopeThenGreet() throws Exception {
-            mockMvc.perform(get("/")).andExpect(status().isOk());
+        void denyRandomWriteScope() throws Exception {
+            mockMvc.perform(get("/")).andExpect(status().isForbidden());
+        }
+
+        @Test
+        @WithMockUser(authorities = "admin:write:greetings")
+        void denyAdminWriteScope() throws Exception {
+            mockMvc.perform(get("/")).andExpect(status().isForbidden());
         }
 
         @Test
         @WithMockUser(authorities = "random")
-        void whenHasWrongScopeThenDeny() throws Exception {
+        void denyRandomScope() throws Exception {
             mockMvc.perform(get("/")).andExpect(status().isForbidden());
         }
     }
@@ -56,20 +68,20 @@ class GreetingsControllerTest {
         }
 
         @Test
-        @WithMockUser(authorities = "read:greetings")
-        void whenHasReadScopeThenDeny() throws Exception {
+        @WithMockUser(authorities = "consumer:write:greetings")
+        void denyConsumerWrite() throws Exception {
             mockMvc.perform(post("/")).andExpect(status().isForbidden());
         }
 
         @Test
-        @WithMockUser(authorities = "write:greetings")
-        void whenHasWriteScopeThenGreet() throws Exception {
+        @WithMockUser(authorities = "admin:write:greetings")
+        void acceptAdminWrite() throws Exception {
             mockMvc.perform(post("/")).andExpect(status().isOk());
         }
 
         @Test
         @WithMockUser(authorities = "randomagain")
-        void whenHasWrongScopeThenDeny() throws Exception {
+        void denyRandomScope() throws Exception {
             mockMvc.perform(post("/")).andExpect(status().isForbidden());
         }
     }

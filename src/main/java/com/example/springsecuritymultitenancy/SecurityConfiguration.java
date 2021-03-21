@@ -32,8 +32,8 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and()
             .authorizeRequests(authz -> authz
                 .mvcMatchers(HttpMethod.GET, "/actuator/health").anonymous()
-                .mvcMatchers(HttpMethod.GET, "/").hasAnyAuthority("read:greetings", "write:greetings")
-                .mvcMatchers(HttpMethod.POST, "/").hasAuthority("write:greetings")
+                .mvcMatchers(HttpMethod.GET, "/").hasAnyAuthority("consumer:read:greetings", "admin:read:greetings")
+                .mvcMatchers(HttpMethod.POST, "/").hasAuthority("admin:write:greetings")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
