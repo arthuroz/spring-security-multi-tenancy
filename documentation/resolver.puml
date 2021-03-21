@@ -1,0 +1,89 @@
+@startuml
+title Authentication flow
+
+skinparam handwritten true
+
+skinparam sequence {
+    ArrowColor DeepSkyBlue
+    LifeLineBorderColor blue
+    LifeLineBackgroundColor #A9DCDF
+
+    ParticipantBorderColor DeepSkyBlue
+    ParticipantBackgroundColor DodgerBlue
+    ParticipantFontSize 18
+    ParticipantFontColor white
+}
+autonumber "<b>[0]"
+
+"BearerToken\nAuthenticationFilter" -> "Jwt\nAuthenticationManager\nIssuerResolver": resolve\nHttpServletRequest
+"Jwt\nAuthenticationManager\nIssuerResolver" -> "JwtClaim\nIssuerConverter": convert\nHttpServletRequest
+note left of "JwtClaim\nIssuerConverter" #aqua
+① parse issuer
+end note
+"JwtClaim\nIssuerConverter" -> "BearerToken\nResolver": resolve\nHttpServletRequest
+"JwtClaim\nIssuerConverter" <-- "BearerToken\nResolver": token string
+"JwtClaim\nIssuerConverter" -> JWTParser: parse token
+"JwtClaim\nIssuerConverter" <-- JWTParser: JWT
+"Jwt\nAuthenticationManager\nIssuerResolver" <-- "JwtClaim\nIssuerConverter": issuer
+"Jwt\nAuthenticationManager\nIssuerResolver" -> "Jwt\nAuthenticationManager\nIssuerResolver": isTrustedIssuer()
+note left of "Jwt\nAuthenticationManager\nIssuerResolver" #aqua
+⓶ check issuer
+against trusted list
+end note
+alt issuer is trusted
+alt AuthenticationManager is not initialised
+    autonumber stop
+    == Initialization ==
+    create "Nimbus\nJwtDecoder"
+    "Jwt\nAuthenticationManager\nIssuerResolver" -> "Nimbus\nJwtDecoder": create
+    create JwtProcessor
+    "Nimbus\nJwtDecoder" -> JwtProcessor: create
+    create "JWSKey\nSelector"
+    JwtProcessor -> "JWSKey\nSelector": create
+    create JWKSetCache
+    "JWSKey\nSelector" -> JWKSetCache: create
+    note left of JWKSetCache #aqua
+        ⓷ configure
+        cache
+    end note
+    create "Delegating\nOAuth2Token\nValidator"
+    "Nimbus\nJwtDecoder" -> "Delegating\nOAuth2Token\nValidator": create
+    create "AuthenticationManager\n(JwtAuthenticationProvider)"
+    "Jwt\nAuthenticationManager\nIssuerResolver" -> "AuthenticationManager\n(JwtAuthenticationProvider)": create with decoder
+    create "Jwt\nAuthentication\nConverter"
+    "Jwt\nAuthenticationManager\nIssuerResolver" -> "Jwt\nAuthentication\nConverter": create
+    "Jwt\nAuthenticationManager\nIssuerResolver" <-- "Jwt\nAuthentication\nConverter"
+    "Jwt\nAuthenticationManager\nIssuerResolver" -> "AuthenticationManager\n(JwtAuthenticationProvider)": set converter
+    autonumber resume
+    == Initialization ==
+end
+    "Jwt\nAuthenticationManager\nIssuerResolver" -> "AuthenticationManager\n(JwtAuthenticationProvider)": authenticate
+    "AuthenticationManager\n(JwtAuthenticationProvider)" -> "Nimbus\nJwtDecoder" : decode
+    "Nimbus\nJwtDecoder" -> "Nimbus\nJwtDecoder": create Jwt
+    "Nimbus\nJwtDecoder" -> "Nimbus\nJwtDecoder": validate Jwt
+    note left of "Nimbus\nJwtDecoder" #aqua
+        ⓸ validations:
+        * audience
+        * issuer
+        * exp
+        * iat
+        * signature
+        * etc
+    end note
+    "AuthenticationManager\n(JwtAuthenticationProvider)" <- "Nimbus\nJwtDecoder" : Jwt
+    "AuthenticationManager\n(JwtAuthenticationProvider)" -> "Jwt\nAuthentication\nConverter" : convert Jwt
+    "Jwt\nAuthentication\nConverter" -> "Jwt\nGrantedAuthorities\nConverter": convert
+        note left of "Jwt\nGrantedAuthorities\nConverter" #aqua
+            ⑤ parse scopes as authorities
+            without prefix "SCOPE_"
+        end note
+    "Jwt\nAuthentication\nConverter" <- "Jwt\nGrantedAuthorities\nConverter": authentication
+    "AuthenticationManager\n(JwtAuthenticationProvider)" <- "Jwt\nAuthentication\nConverter" : token
+    "BearerToken\nAuthenticationFilter" <-- "Jwt\nAuthentication\nConverter" : token
+else issuer is not trusted
+note left of "Jwt\nAuthenticationManager\nIssuerResolver" #grey
+Ⓧ reject request
+end note
+"BearerToken\nAuthenticationFilter" <[#red]- "Jwt\nAuthenticationManager\nIssuerResolver": InvalidBearerTokenException
+end
+@enduml
