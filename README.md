@@ -1,4 +1,4 @@
-# Spring Security OAuth Resource server demo
+# Spring Security OAuth Resource Server demo
 
 ## Features
 
@@ -8,9 +8,15 @@
 
 * Audience validation
 
+* Drop the "SCOPE_" or "ROLE_" prefix from converted authority string
+
 ## Reference Documentation
 
-For further reference, please consider the following sections:
+### How it works
+
+![A big picture with some details](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/arthuroz/spring-security-multi-tenancy/main/documentation/resolver.puml)
+
+### For further reference, please consider the following sections:
 
 * [Spring Security](https://docs.gradle.org)
 * [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.4.3/gradle-plugin/reference/html/)
